@@ -6,6 +6,12 @@ const validateUserSignupInputValues = () => [
     validatePassword()
 ];
 
+const validateUserLoginInput = () => [
+    validateEmail(),
+    validatePassword()
+]
+
 module.exports =  {
-    validateUserSignupInputValues
+    validateUserSignupInputValues,
+    validateUserLoginInput
 }
