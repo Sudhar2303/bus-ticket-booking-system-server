@@ -20,17 +20,10 @@ const bcrypt = require('bcrypt')
  *           type: string
  *           description: The hashed password of the user
  *           example: Abc12345!@
- *         phone:
- *           type: object
- *           properties:
- *             countryCode:
- *               type: string
- *               description: The country code of the phone number
- *               example: +91
- *             number:
- *               type: string
- *               description: The 10-digit phone number
- *               example: 9876543210
+ *         number:
+ *            type: string
+ *            description: The 10-digit phone number
+ *             example: 9876543210
  *         role:
  *           type: string
  *           description: The role of the user
@@ -79,19 +72,9 @@ const userSchema = new mongoose.Schema({
             minlength :[8, 'Password must contain at least 8 character long'],
             maxlength :[20, 'Password must not exceed 20 characters'],
             match: [
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_-])[A-Za-z\d!@#$%^&*(),.?":{}|<>_-]{8,}$/,
                 'Password must have at least one uppercase letter, one lowercase letter, one number, and one special character. Minimum length is 8 characters.',
             ]
-        },
-        phone: {
-            countryCode: {
-                type: String,
-                match: /^\+\d{1,4}$/,
-            },
-            number: {
-                type: String,
-                match: /^\d{10}$/,
-            }
         },
         role :
         {
