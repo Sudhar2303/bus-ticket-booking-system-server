@@ -46,6 +46,7 @@ const bcrypt = require('bcrypt')
  *         - email
  *         - password
  */
+
 const userSchema = new mongoose.Schema({
         name : {
             type: String, 
