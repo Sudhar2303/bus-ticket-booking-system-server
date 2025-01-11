@@ -110,7 +110,6 @@ const searchBuses = async( request, response) => {
 
 const ticketBooking = async(request, response) => {
     const { busID, seats } = request.body;
-
     try {
         const errors = validationResult(request)
         if (!errors.isEmpty()) {

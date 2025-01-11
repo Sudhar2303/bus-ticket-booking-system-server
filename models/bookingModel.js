@@ -50,18 +50,15 @@ const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema(
   {
-    bookingID: {
-      type: String,
-      unique: true,
-      required: [true, 'Booking ID is required'],
-    },
     busID: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: [true, 'Bus ID is required'],
+      ref: 'buses'
     },
     userID: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: [true, 'User ID is required'],
+      ref : 'users'
     },
     seats: {
       type: [String], 
