@@ -1,4 +1,4 @@
-const busModel = require('../Model/busModel')
+const busModel = require('../models/busModel')
 
 const findBusByBusID = async(busID) => {
     return busModel.findOne({ busID })

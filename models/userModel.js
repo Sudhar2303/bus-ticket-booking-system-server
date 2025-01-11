@@ -21,13 +21,13 @@ const bcrypt = require('bcrypt')
  *           description: The hashed password of the user
  *           example: Abc12345!@
  *         number:
- *            type: string
- *            description: The 10-digit phone number
- *             example: 9876543210
+ *           type: string
+ *           description: The 10-digit phone number
+ *           example: 9876543210
  *         role:
  *           type: string
  *           description: The role of the user
- *           enum: 
+ *           enum:
  *             - admin
  *             - user
  *           example: user
@@ -46,6 +46,7 @@ const bcrypt = require('bcrypt')
  *         - email
  *         - password
  */
+
 
 const userSchema = new mongoose.Schema({
         name : {

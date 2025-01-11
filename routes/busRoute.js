@@ -3,7 +3,7 @@ const router = express.Router()
 
 const { validateBus, validateBusID, validateSearchBusInputs } = require('../validators/busValidator')
 const { addNewBus, removeBus, searchBuses } = require('../controllers/busController')
-
+const { verifyUser, verifyAdmin } = require('../middleware/authMiddleware')
 /**
  * @swagger
  * /bus/addBus:
@@ -81,7 +81,7 @@ const { addNewBus, removeBus, searchBuses } = require('../controllers/busControl
  *         description: Internal server error
  */
 
-router.post('/addBus',validateBus(), addNewBus)
+router.post('/addBus', verifyUser, verifyAdmin, validateBus(), addNewBus)
 
 /**
  * @swagger
@@ -114,7 +114,7 @@ router.post('/addBus',validateBus(), addNewBus)
  *         description: Internal server error
  */
 
-router.delete('/deleteBus', validateBusID(), removeBus)
+router.delete('/deleteBus', verifyUser, verifyAdmin, validateBusID(), removeBus)
 
 /**
  * @swagger
@@ -157,6 +157,6 @@ router.delete('/deleteBus', validateBusID(), removeBus)
  *         description: Internal server error
  */
 
-router.post('/searchBus', validateSearchBusInputs(), searchBuses)
+router.post('/searchBus', verifyUser, verifyAdmin, validateSearchBusInputs(), searchBuses)
 
 module.exports = router
