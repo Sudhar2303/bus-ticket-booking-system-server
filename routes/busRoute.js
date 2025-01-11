@@ -4,6 +4,7 @@ const router = express.Router()
 const { validateBus, validateBusID, validateSearchBusInputs } = require('../validators/busValidator')
 const { addNewBus, removeBus, searchBuses } = require('../controllers/busController')
 const { verifyUser, verifyAdmin } = require('../middleware/authMiddleware')
+
 /**
  * @swagger
  * /bus/addBus:
