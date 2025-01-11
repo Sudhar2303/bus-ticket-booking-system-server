@@ -81,6 +81,16 @@ const validateTotalSeats = () => {
             .withMessage('Total seats must be at least 1');
 };
 
+const validateSeatNumbers = () => {
+    return body('seats')
+        .isArray({ min: 1, max: 5 })
+            .withMessage('You can book a maximum of 5 seats at a time.')
+            .custom((seats) => {
+                const seatRegex = /^R[1-5][UL][1-4]$/;
+                return seats.every((seat) => seatRegex.test(seat));
+            })
+            .withMessage('Each seat must be in the format R[1-5][UL][1-2], e.g., R1U1 or R5L2.')
+}
 
 const validateBus = () => [
     validateBusID(),
@@ -99,8 +109,15 @@ const validateSearchBusInputs = () => [
     validateDestination(),
     validateTravelDate()
 ]
+
+const validateTicketBookingInputs = () => [
+    validateBusID(),
+    validateSeatNumbers(),
+] 
+
 module.exports = {
     validateBus,
     validateBusID,
-    validateSearchBusInputs
+    validateSearchBusInputs,
+    validateTicketBookingInputs
 };

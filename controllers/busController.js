@@ -112,6 +112,10 @@ const ticketBooking = async(request, response) => {
     const { busID, seats } = request.body;
 
     try {
+        const errors = validationResult(request)
+        if (!errors.isEmpty()) {
+            return response.status(400).send(setResponseBody(errors.array()[0].msg, "validation_error", null))
+        }
 
         if (!Array.isArray(seats) || seats.length === 0 || seats.length > 5) {
             return response.status(400).send(setResponseBody('You can book a maximum of 5 seats at a time.', 'validation_error', null));
@@ -123,7 +127,6 @@ const ticketBooking = async(request, response) => {
         }
 
         const unavailableSeats = seats.filter(seat => {
-            // Check if the seat is neither in the 'upper' nor 'lower' available seats
             const isUpperUnavailable = bus.availableSeats.upper && !bus.availableSeats.upper.includes(seat);
             const isLowerUnavailable = bus.availableSeats.lower && !bus.availableSeats.lower.includes(seat);
             return isUpperUnavailable && isLowerUnavailable;

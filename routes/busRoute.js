@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { validateBus, validateBusID, validateSearchBusInputs } = require('../validators/busValidator')
+const { validateBus, validateBusID, validateSearchBusInputs , validateTicketBookingInputs } = require('../validators/busValidator')
 const { addNewBus, removeBus, searchBuses, ticketBooking } = require('../controllers/busController')
 const { verifyUser, verifyAdmin } = require('../middleware/authMiddleware')
 
@@ -196,6 +196,6 @@ router.post('/searchBus',validateSearchBusInputs(), searchBuses)
  *         description: Internal server error.
  */
 
-router.post('/bookTickets', verifyUser, ticketBooking)
+router.post('/bookTickets', validateTicketBookingInputs(), verifyUser, ticketBooking)
 
 module.exports = router
