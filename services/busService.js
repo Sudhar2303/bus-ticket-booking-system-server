@@ -27,9 +27,30 @@ const getBusesByCriteria = async(source, destination, travelDateParsed) =>{
     });
 }
 
+const updateSeats = async(bus, seats) =>
+{
+    const busData = new busModel(bus)
+    
+    seats.forEach(seat => {
+        if (busData.availableSeats.upper.includes(seat)) {
+            const index = busData.availableSeats.upper.indexOf(seat);
+            if (index > -1) {
+                busData.availableSeats.upper.splice(index, 1);
+            }
+        } else if (busData.availableSeats.lower.includes(seat)) {
+            const index = busData.availableSeats.lower.indexOf(seat);
+            if (index > -1) {
+                busData.availableSeats.lower.splice(index, 1);
+            }
+        }
+    });
+
+    await busData.save();
+}
 module.exports = {
     findBusByBusID,
     createBus,
     deleteBus,
-    getBusesByCriteria
+    getBusesByCriteria,
+    updateSeats
 }

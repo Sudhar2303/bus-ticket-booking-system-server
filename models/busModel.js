@@ -44,10 +44,6 @@ const mongoose = require('mongoose');
  *           type: number
  *           description: The total number of seats available in the bus
  *           example: 40
- *         availableSeats:
- *           type: number
- *           description: The number of seats currently available for booking
- *           example: 25
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -67,7 +63,6 @@ const mongoose = require('mongoose');
  *         - travelDate
  *         - departureTime
  *         - farePerSeat
- *         - availableSeats
  */
 
 const busSchema = new mongoose.Schema(
@@ -129,16 +124,15 @@ const busSchema = new mongoose.Schema(
         min: [1, 'Total seats must be at least 1'],
     },
     availableSeats: {
-        type: Number,
+        type: Object, 
         required: true,
-        min: [0, 'Available seats cannot be negative'],
-        validate: {
-            validator: function (value) {
-            return value <= this.totalSeats;
-            },
-            message: 'Available seats cannot exceed total seats',
-        },
-    },
+        default: function() {
+            return {
+                upper: Array.from({ length: 20 }, (_, i) => `R${Math.floor(i / 4) + 1}U${(i % 4) + 1}`), 
+                lower: Array.from({ length: 20 }, (_, i) => `R${Math.floor(i / 4) + 1}L${(i % 4) + 1}`)  
+            };
+        }
+    }
   },
   {
         timestamps: true, 

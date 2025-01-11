@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const { validateBus, validateBusID, validateSearchBusInputs } = require('../validators/busValidator')
-const { addNewBus, removeBus, searchBuses } = require('../controllers/busController')
+const { addNewBus, removeBus, searchBuses, ticketBooking } = require('../controllers/busController')
 const { verifyUser, verifyAdmin } = require('../middleware/authMiddleware')
 
 /**
@@ -28,7 +28,6 @@ const { verifyUser, verifyAdmin } = require('../middleware/authMiddleware')
  *               - departureTime
  *               - farePerSeat
  *               - totalSeats
- *               - availableSeats
  *             properties:
  *               busID:
  *                 type: string
@@ -67,10 +66,6 @@ const { verifyUser, verifyAdmin } = require('../middleware/authMiddleware')
  *                 type: number
  *                 example: 40
  *                 description: Total number of seats available in the bus
- *               availableSeats:
- *                 type: number
- *                 example: 30
- *                 description: Number of available seats
  *     responses:
  *       201:
  *         description: Bus added successfully
@@ -158,6 +153,49 @@ router.delete('/deleteBus', verifyUser, verifyAdmin, validateBusID(), removeBus)
  *         description: Internal server error
  */
 
-router.post('/searchBus', verifyUser, verifyAdmin, validateSearchBusInputs(), searchBuses)
+router.post('/searchBus',validateSearchBusInputs(), searchBuses)
+
+/**
+ * @swagger
+ * /bus/bookTickets:
+ *   post:
+ *     summary: Book tickets for a bus
+ *     description: Allows a user to book tickets for a bus. A maximum of 5 seats can be booked at a time.
+ *     tags:
+ *       - Bus Management
+ *     security:
+ *       - bearerAuth: []  # Assuming you're using JWT for user verification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               busID:
+ *                 type: string
+ *                 description: The unique ID of the bus for which tickets are being booked.
+ *                 example: BUS12345
+ *               seats:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   description: The seat identifiers to be booked.
+ *                 example: ["R1U1", "R1U2", "R2L1"]
+ *             required:
+ *               - busID
+ *               - seats
+ *     responses:
+ *       200:
+ *         description: Tickets booked successfully.
+ *       400:
+ *         description: Validation error or seats unavailable.
+ *       404:
+ *         description: Bus not found.
+ *       500:
+ *         description: Internal server error.
+ */
+
+router.post('/bookTickets', verifyUser, ticketBooking)
 
 module.exports = router

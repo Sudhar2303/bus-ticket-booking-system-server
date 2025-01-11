@@ -81,19 +81,6 @@ const validateTotalSeats = () => {
             .withMessage('Total seats must be at least 1');
 };
 
-const validateAvailableSeats = () => {
-    return body('availableSeats')
-        .notEmpty()
-            .withMessage('Available seats is a mandatory field')
-        .isInt({ min: 0 })
-            .withMessage('Available seats cannot be negative')
-        .custom((value, { req }) => {
-            if (value > req.body.totalSeats) {
-                throw new Error('Available seats cannot exceed total seats');
-            }
-            return true;
-        });
-};
 
 const validateBus = () => [
     validateBusID(),
@@ -104,8 +91,7 @@ const validateBus = () => [
     validateTravelDate(),
     validateDepartureTime(),
     validateFarePerSeat(),
-    validateTotalSeats(),
-    validateAvailableSeats(),
+    validateTotalSeats()
 ];
 
 const validateSearchBusInputs = () => [

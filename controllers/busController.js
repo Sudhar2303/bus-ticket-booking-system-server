@@ -1,11 +1,11 @@
 
 const { validationResult } = require('express-validator')
-const { findBusByBusID, createBus, deleteBus, getBusesByCriteria } = require('../services/busService')
+const { findBusByBusID, createBus, deleteBus, getBusesByCriteria, updateSeats } = require('../services/busService')
 const { setResponseBody } = require('../utils/responseFormatter')
 const { response } = require('express')
 
 const addNewBus = async(request,response) => {
-    let { busID, busName, busNumber, source, destination, travelDate, departureTime, farePerSeat, totalSeats, availableSeats } = request.body
+    let { busID, busName, busNumber, source, destination, travelDate, departureTime, farePerSeat, totalSeats } = request.body
     try
     {
         const errors = validationResult(request)
@@ -18,7 +18,7 @@ const addNewBus = async(request,response) => {
         if(existingBus)
             return response.status(409).send(setResponseBody("Bus details already exist","existing_bus_deatils",null)) 
 
-        const newBus = await createBus({ busID, busName, busNumber, source, destination, travelDate, departureTime, farePerSeat, totalSeats, availableSeats })
+        const newBus = await createBus({ busID, busName, busNumber, source, destination, travelDate, departureTime, farePerSeat, totalSeats })
 
         let responseData = {
             name : newBus.busName,
@@ -49,8 +49,11 @@ const removeBus = async (request, response) => {
             return response.status(404).send(setResponseBody("Bus not found", "bus_not_found", null))
         }
 
-        if (existingBus.availableSeats < existingBus.totalSeats) {
-            return response.status(400).send(setResponseBody("Cannot remove bus with available seats", "non_removable_bus", null))
+        const upperSeatsAvailable = existingBus.availableSeats.upper.length;
+        const lowerSeatsAvailable = existingBus.availableSeats.lower.length;
+
+        if (upperSeatsAvailable < 20 || lowerSeatsAvailable < 20) {
+            return response.status(400).send(setResponseBody("Cannot remove bus with booked seats", "non_removable_bus", null));
         }
 
         const deleteBusDetails =  await deleteBus(existingBus._id)
@@ -58,7 +61,8 @@ const removeBus = async (request, response) => {
             return response.status(200).send(setResponseBody("Bus removed successfully", null, null));
         else
             response.status(500).send(setResponseBody("Failed to remove bus", "delete_failed", null));
-    } catch (error) {
+    }
+    catch (error) {
         response.status(500).send(setResponseBody(error.message, "server_error", null));
     }
 }
@@ -92,7 +96,10 @@ const searchBuses = async( request, response) => {
             travelDate: bus.travelDate,
             departureTime: bus.departureTime,
             farePerSeat: bus.farePerSeat,
-            availableSeats: bus.availableSeats,
+            availableSeats: {
+                upper: bus.availableSeats.upper,  
+                lower: bus.availableSeats.lower  
+            },
         }));
 
         response.status(200).send(setResponseBody("Buses retrieved successfully", null, responseData));
@@ -101,8 +108,43 @@ const searchBuses = async( request, response) => {
     }
 }
 
+const ticketBooking = async(request, response) => {
+    const { busID, seats } = request.body;
+
+    try {
+
+        if (!Array.isArray(seats) || seats.length === 0 || seats.length > 5) {
+            return response.status(400).send(setResponseBody('You can book a maximum of 5 seats at a time.', 'validation_error', null));
+        }
+
+        const bus = await findBusByBusID(busID);
+        if (!bus) {
+            return response.status(404).send(setResponseBody('Bus not found.', 'not_found', null));
+        }
+
+        const unavailableSeats = seats.filter(seat => {
+            // Check if the seat is neither in the 'upper' nor 'lower' available seats
+            const isUpperUnavailable = bus.availableSeats.upper && !bus.availableSeats.upper.includes(seat);
+            const isLowerUnavailable = bus.availableSeats.lower && !bus.availableSeats.lower.includes(seat);
+            return isUpperUnavailable && isLowerUnavailable;
+        });
+        
+        if (unavailableSeats.length > 0) {
+            return response.status(400).send(setResponseBody(`The following seats are unavailable: ${unavailableSeats.join(', ')}`, 'seats_unavailable', null));
+        }
+
+        updateSeats(bus, seats)
+
+        response.status(200).send(setResponseBody(`Successfully booked the following seats: ${seats.join(', ')}`, null, null));
+
+    } catch (error) {
+        response.status(500).send(setResponseBody(error.message, 'server_error', null));
+    }
+}
+
 module.exports = {
     addNewBus,
     removeBus,
-    searchBuses
+    searchBuses,
+    ticketBooking
 }
